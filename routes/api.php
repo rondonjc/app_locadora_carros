@@ -28,7 +28,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group([
 
-    'middleware' => 'api',
+    'middleware' => 'auth:api',
     'prefix' => 'v1'
 
 ], function () {

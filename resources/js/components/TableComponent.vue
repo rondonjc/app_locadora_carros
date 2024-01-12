@@ -1,39 +1,39 @@
 <template>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td colspan="2">Larry the Bird</td>
-                <td>@twitter</td>
-            </tr>
-        </tbody>
-    </table>
+    <div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col"  v-for="titulo in titulos" class="text-uppercase">{{titulo}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="obj in datos" :key="obj.id">
+                    <td v-for="valor,chave in columnas(obj)" :key="chave">
+                         {{ valor }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
 </template>
 
 <script>
     export default {
+        methods:{
+            columnas(obj){
+
+                for (let clave in obj) {
+                    if (!this.titulos.includes(clave)) {
+                            delete obj[clave]
+                    }
+                }
+
+                return obj;
+            }
+        },
+        props:['datos','titulos'],
         mounted() {
-            console.log('Component mounted.')
         }
     }
 </script>
