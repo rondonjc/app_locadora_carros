@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     <th scope="col"  v-for="titulo in datos.titulos" :key="titulo">{{titulo.titulo}}</th>
-                    <th v-if="datos.visualizar||datos.editar||datos.eliminar" ></th>
+                    <th v-if="datos.visualizar.visible||datos.editar.visible||datos.eliminar.visible" ></th>
                 </tr>
             </thead>
             <tbody>
@@ -20,10 +20,10 @@
                             {{ obj[chave] }}
                         </span>
                     </td>
-                    <td  v-if="datos.visualizar||datos.editar||datos.eliminar">
-                        <button v-if="datos.visualizar" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMarcaVisualizar" >Visualizar</button>
-                        <button v-if="datos.editar" class="btn btn-outline-primary btn-sm" >Editar</button>
-                        <button v-if="datos.eliminar" class="btn btn-outline-danger btn-sm" >Eliminar</button>
+                    <td  v-if="datos.visualizar.visible||datos.editar.visible||datos.eliminar.visible">
+                        <button v-if="datos.visualizar.visible" class="btn btn-outline-primary btn-sm" :data-bs-toggle="datos.visualizar.dataToggle" :data-bs-target="datos.visualizar.dataTarget" @click="setStore(obj)" >Visualizar</button>
+                        <button v-if="datos.editar.visible" class="btn btn-outline-primary btn-sm" :data-bs-toggle="datos.editar.dataToggle" :data-bs-target="datos.editar.dataTarget" @click="setStore(obj)" >Editar</button>
+                        <button v-if="datos.eliminar.visible" class="btn btn-outline-danger btn-sm" :data-bs-toggle="datos.eliminar.dataToggle" :data-bs-target="datos.eliminar.dataTarget" @click="setStore(obj)" >Eliminar</button>
                     </td>
                 </tr>
             </tbody>
@@ -62,7 +62,11 @@
                 var fechaFormateada = dia + '/' + mes + '/' + año;
 
                 return fechaFormateada
+            },
+            setStore(obj){
+                this.$store.state.item = obj;
             }
+
         },
         props:['datos','titulos'],
         mounted() {

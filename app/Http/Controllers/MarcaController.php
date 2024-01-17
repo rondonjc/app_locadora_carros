@@ -130,7 +130,7 @@ class MarcaController extends Controller
         $marca = $this->marca->find($id);
 
         if($marca=== null){
-            return ['msj'=>'No existe el recurso buscado'];
+            return response()->json(['msj'=>'No existe el recurso buscado'],404);
         }
 
         Storage::disk('public')->delete($marca->imagen);

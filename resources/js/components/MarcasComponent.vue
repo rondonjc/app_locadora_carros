@@ -79,14 +79,24 @@
         <template v-slot:body>
             <div class="row">
                 <div class="mb-3">
-                    <input-container titulo="Nombre de la Marca" id="inputNombreVisualizar" idHelp ="nombreHelpVisualizar" texto-ayuda="Informe el nombre de la marca.">
-                        <input type="text" class="form-control" id="inputNombreVisualizar" v-model="visualizar.id" aria-describedby="nombreHelpVisualizar">
+                    <input-container titulo="ID de la Marca" id="inputIdisualizar" idHelp ="IdHelpVisualizar" texto-ayuda="">
+                        <input type="text" class="form-control" id="inputIdisualizar" disabled :value="$store.state.item.id" aria-describedby="IdHelpVisualizar">
                     </input-container>
                 </div>
                 <div class="mb-3">
-
-                    <input-container titulo="Imagen de la Marca" id="inputImagenVisualizar" idHelp ="idImagenVisualizar" texto-ayuda="Seleccione una imagen en formato png">
-                        <input type="file" class="form-control" id="inputImagenVisualizar" aria-describedby="idImagenVisualizar" placeholder="Seleccione un archivo" @change="carregarImagen($event)">
+                    <input-container titulo="Nombre de la Marca" id="inputNombreVisualizar" idHelp ="nombreHelpVisualizar" texto-ayuda="">
+                        <input type="text" class="form-control" id="inputNombreVisualizar" disabled :value="$store.state.item.nombre" aria-describedby="nombreHelpVisualizar">
+                    </input-container>
+                </div>
+                <div class="mb-3">
+                    <input-container titulo="Imagen de la Marca" id="inputImagenVisualizar" idHelp ="idImagenVisualizar" texto-ayuda="">
+                        <br>
+                        <img :src="'storage/'+$store.state.item.imagen" v-if="$store.state.item.imagen" />
+                    </input-container>
+                </div>
+                <div class="mb-3">
+                    <input-container titulo="Fecha de Creacion" id="inputFechaVisualizar" idHelp ="FechaHelpVisualizar" texto-ayuda="">
+                        <input type="text" class="form-control" id="inputFechaVisualizar" disabled :value="$store.state.item.created_at" aria-describedby="FechaeHelpVisualizar">
                     </input-container>
                 </div>
             </div>
@@ -95,21 +105,68 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         </template>
     </modal-component>
+
+    <!-- Modal Eliminar -->
+    <modal-component id="modalMarcaEliminar" titulo="Eliminar Marca">
+        <template v-slot:alert v-if="mostarAlert">
+            <alert-component :tipo="alertTipo"  :mensaje="alertMensaje" ></alert-component>
+        </template>
+        <template v-slot:body>
+            <div class="row">
+                <div class="mb-3">
+                    <input-container titulo="ID de la Marca" id="inputId" idHelp ="IdHelpEliminar" texto-ayuda="">
+                        <input type="text" class="form-control" id="inputIdEliminar" disabled :value="$store.state.item.id" aria-describedby="IdHelpEliminar">
+                    </input-container>
+                </div>
+                <div class="mb-3">
+                    <input-container titulo="Nombre de la Marca" id="inputNombreEliminar" idHelp ="nombreHelpEliminar" texto-ayuda="">
+                        <input type="text" class="form-control" id="inputNombreEliminar" disabled :value="$store.state.item.nombre" aria-describedby="nombreHelpEliminar">
+                    </input-container>
+                </div>
+            </div>
+        </template>
+        <template v-slot:footer>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" @click="eliminarMarca()">Eliminar</button>
+        </template>
+    </modal-component>
+
+        <!-- Modal Editar -->
+    <modal-component id="modalMarcaEditar" titulo="Editar Marca">
+        <template v-slot:alert v-if="mostarAlert">
+            <alert-component :tipo="alertTipo"  :mensaje="alertMensaje" ></alert-component>
+        </template>
+        <template v-slot:body>
+            <div class="row">
+                <div class="mb-3">
+                    <input-container titulo="Nombre de la Marca" id="inputNombreEdit" idHelp ="nombreHelpEdit"  texto-ayuda="Informe el nombre de la marca.">
+                        <input type="text" class="form-control" id="inputNombreEdit"  aria-describedby="nombreHelpEdit" v-model="$store.state.item.nombre">
+                    </input-container>
+                </div>
+                <div class="mb-3">
+                    <input-container titulo="Imagen de la Marca" id="inputImagenVisualizarEdit" idHelp ="idImagenVisualizarEdit" texto-ayuda="">
+                        <br>
+                        <img :src="'storage/'+$store.state.item.imagen" v-if="$store.state.item.imagen" />
+                    </input-container>
+                </div>
+                <div class="mb-3">
+                    <input-container titulo="" id="inputImagenEdit" idHelp ="idImagenEdit" texto-ayuda="Seleccione una imagen en formato png">
+                        <input type="file" class="form-control" id="inputImagenEdit" aria-describedby="idImagenEdit" placeholder="Seleccione un archivo" @change="carregarImagen($event)">
+                    </input-container>
+                </div>
+            </div>
+        </template>
+        <template v-slot:footer>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" @click="editarMarca()">Editar</button>
+        </template>
+    </modal-component>
 </template>
 
 <script>
 import axios from 'axios';
 
     export default {
-        computed:{
-            token(){
-                let token = document.cookie.split(';').find(indixe=>{
-                    return indixe.startsWith('token=')
-                });
-                token = token.split('=')[1];
-                return token;
-            }
-        },
         data(){
             return {
                 urlBase: 'http://127.0.0.1:8000/api/v1/marca',
@@ -117,9 +174,10 @@ import axios from 'axios';
                 urlFiltro: '',
                 inputNombreAdd:'',
                 inputImagenAdd:[],
-                visualizar:{
+                editar:{
                     id:'',
-                    nombre:''
+                    nombre:'',
+                    imagen:[]
                 },
                 mostarAlert:false,
                 alertMensaje: '',
@@ -132,9 +190,21 @@ import axios from 'axios';
                         created_at:{titulo:'Fecha de Creación',tipo:'data'},
                     },
                     datos:{ data:[]},
-                    visualizar:true,
-                    editar:true,
-                    eliminar:true
+                    visualizar:{
+                        visible:true,
+                        dataToggle:'modal',
+                        dataTarget:'#modalMarcaVisualizar'
+                    },
+                    editar:{
+                        visible:true,
+                        dataToggle:'modal',
+                        dataTarget:'#modalMarcaEditar'
+                    },
+                    eliminar:{
+                        visible:true,
+                        dataToggle:'modal',
+                        dataTarget:'#modalMarcaEliminar'
+                    },
 
                 },
                 buscar:{
@@ -165,16 +235,10 @@ import axios from 'axios';
                 this.cargarLista()
             },
             cargarLista(){
-                let config = {
-                    headers:{
-                        'Accept':'application/json',
-                        'Authorization':this.token
-                    }
-                }
 
                 let url = this.urlBase + '?' +this.urlPaginacion + this.urlFiltro
 
-                axios.get(url,config)
+                axios.get(url)
                 .then(response=>{
                     this.marcas.datos = response.data
 
@@ -187,6 +251,7 @@ import axios from 'axios';
                 this.inputImagenAdd = e.target.files
             },
             guardarMarca(){
+
                 let formData = new FormData();
                 formData.append('nombre',this.inputNombreAdd);
                 formData.append('imagen',this.inputImagenAdd[0]);
@@ -194,8 +259,6 @@ import axios from 'axios';
                 let config = {
                     headers:{
                         'Content-Type':'multipart/form-data',
-                        'Accept':'application/json',
-                        'Authorization':this.token
                     }
                 }
 
@@ -210,6 +273,64 @@ import axios from 'axios';
                     this.alertTipo = 'danger';
                     this.alertMensaje = error.response.data.message;
                 })
+            },
+            editarMarca(){
+
+
+                let formData = new FormData();
+                formData.append('_method','patch');
+                formData.append('nombre',this.$store.state.item.nombre);
+
+                if(this.inputImagenAdd[0]){
+                    formData.append('imagen',this.inputImagenAdd[0]);
+                }
+
+
+                let url = this.urlBase+'/'+this.$store.state.item.id
+
+                let config = {
+                    headers:{
+                        'Content-Type':'multipart/form-data',
+                    }
+                }
+
+                axios.post(url,formData,config)
+                .then(response=>{
+                    this.alertMensaje = "Marca Editada correctamente";
+                    this.mostarAlert = true;
+                    this.alertTipo = 'success';
+                    inputImagenEdit.value = ''
+                    this.cargarLista();
+                })
+                .catch(error=>{
+                    this.mostarAlert = true;
+                    this.alertTipo = 'danger';
+                    this.alertMensaje = error.response.data.message;
+                })
+            },
+            eliminarMarca(){
+
+                let confimarcion = confirm("Esta seguro de eliminar esta marca?")
+                if(!confimarcion) return false;
+                let url = this.urlBase+'/'+this.$store.state.item.id
+
+                let formData = new FormData();
+                formData.append('_method','delete');
+
+                axios.post(url,formData)
+                .then(response=>{
+                    this.alertMensaje = "Marca Eliminada correctamente";
+                    this.mostarAlert = true;
+                    this.alertTipo = 'success';
+                    this.cargarLista();
+                })
+                .catch(error=>{
+                    this.mostarAlert = true;
+                    this.alertTipo = 'danger';
+                    this.alertMensaje = error.response.data.msj;
+                })
+
+                console.log(this.$store.state.item)
             },
             paginacion(link){
                 if(link.url){

@@ -32,3 +32,32 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME ?? 'https') === 'https',
 //     enabledTransports: ['ws', 'wss'],
 // });
+axios.interceptors.request.use(
+    config=>{
+
+        let token = document.cookie.split(';').find(indixe=>{
+            return indixe.includes('token=')
+        });
+        token = token.split('=')[1];
+        token = 'Bearer '+token
+
+        config.headers.Accept = 'application/json';
+        config.headers.Authorization = token
+
+        return config
+    },
+    error=>{
+        console.log("Error en la configuracion",error);
+        return Promise.reject(error);;
+    }
+)
+axios.interceptors.response.use(
+    response=>{
+    console.log("Intersentando la respuesta, antes de la aplicacion resivir",response);
+    return response
+    },
+    error=>{
+        console.log("Error en la respuesta",error);
+        return Promise.reject(error.response);
+    }
+)
