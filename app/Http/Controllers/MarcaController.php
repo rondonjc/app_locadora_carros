@@ -48,7 +48,7 @@ class MarcaController extends Controller
             $marcaRepository->selectAtibutos($atributos);
 
         }
-        $marcas = $marcaRepository->getResultado();
+        $marcas = $marcaRepository->getResultadoPaginado();
         return response()->json($marcas,200);
     }
 
